@@ -80,7 +80,6 @@ if st.button("Finish and continue survey"):
     df = pd.DataFrame(st.session_state.log)
     df.to_csv(f"chatlog_{pid}.csv", index=False)
     redirect_url = f"https://iu.ca1.qualtrics.com/jfe/form/SV_es9wQhWHcJ9lg1M?pid={pid}&cond={cond}"
-    st.markdown(f"Redirecting to [Qualtrics Survey]({redirect_url})...")
     html_redirect = (
         f'<meta http-equiv="refresh" content="1;url={redirect_url}">'
         f'<p>If you are not redirected, <a href="{redirect_url}">click here to continue survey</a>.</p>'
