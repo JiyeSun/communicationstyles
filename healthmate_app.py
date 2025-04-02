@@ -3,8 +3,7 @@ import openai
 import pandas as pd
 import os
 from google_sheet_writer import write_to_google_sheet
-from knowledge_retriever import get_knowledge_context
-
+from rag_helper import get_knowledge_context
 # ====== Configuration ======
 model = "gpt-4"
 openai.api_key = os.getenv("OPENAI_API_KEY")
