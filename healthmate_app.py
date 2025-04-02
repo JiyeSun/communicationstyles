@@ -79,4 +79,12 @@ for sender, msg in st.session_state.chat:
 if st.button("Finish and continue survey"):
     df = pd.DataFrame(st.session_state.log)
     df.to_csv(f"chatlog_{pid}.csv", index=False)
-    st.markdown(f"[Click here to continue survey](https://iu.ca1.qualtrics.com/jfe/form/SV_es9wQhWHcJ9lg1M?pid={pid}&cond={cond})")
+    redirect_url = f"https://iu.ca1.qualtrics.com/jfe/form/SV_es9wQhWHcJ9lg1M?pid={pid}&cond={cond}"
+    st.markdown(f"Redirecting to [Qualtrics Survey]({redirect_url})...")
+    # HTML meta refresh auto redirect
+    st.markdown(
+        f"""
+        <meta http-equiv="refresh" content="1;url={redirect_url}">
+        """,
+        unsafe_allow_html=True
+    )
