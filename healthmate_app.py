@@ -1,15 +1,15 @@
-
 import streamlit as st
 import openai
 import pandas as pd
 import os
 from google_sheet_writer import write_to_google_sheet
+from knowledge_retriever import get_knowledge_context
 
 # ====== Configuration ======
 model = "gpt-4"
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# ====== Prompt Definitions ======
+# ====== Prompt Definitions with Few-shot Examples ======
 PROMPT_DICT = {
     "1": (
         """You are HealthMate, an authoritative AI health advisor. Your communication style is directive. You give users clear, specific instructions. Avoid asking questions or giving options. You must provide a single, strong recommendation.""",
@@ -57,7 +57,7 @@ if "log" not in st.session_state:
 # ====== UI ======
 st.title("🩺 HealthMate – AI Health Assistant")
 pid, cond = get_url_params()
-prompt = PROMPTS.get(cond, PROMPTS["1"])
+style_prompt, few_shot = PROMPT_DICT.get(cond, PROMPT_DICT["1"])
 
 # ====== Debug Info ======
 debug = True
@@ -76,7 +76,7 @@ if st.button("Send") and user_input:
 
     system_prompt = f"""
 You are HealthMate.
-{prompt_style}
+{style_prompt}
 
 The following reference information may be helpful. Use it as background to inform your response, but you do not need to strictly follow or quote it:
 
@@ -85,7 +85,7 @@ The following reference information may be helpful. Use it as background to info
 If you're unsure, it's okay to say you don't know or that more consultation is recommended.
 """
 
-    messages = [{"role": "system", "content": system_prompt}]
+    messages = [{"role": "system", "content": system_prompt}] + few_shot
     for sender, msg in st.session_state.chat:
         role = "user" if sender == "User" else "assistant"
         messages.append({"role": role, "content": msg})
@@ -124,4 +124,3 @@ if st.button("Finish and continue survey"):
         f'<p style="display:none;">Redirecting... <a href=\"{redirect_url}\">Click here</a>.</p>'
     )
     st.markdown(html_redirect, unsafe_allow_html=True)
-
