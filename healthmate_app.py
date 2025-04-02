@@ -88,6 +88,6 @@ if st.button("Finish and Continue Survey"):
     df = pd.DataFrame(st.session_state.log)
     df.to_csv(f"chatlog_{pid}.csv", index=False)
     qualtrics_return_url = f"https://your-qualtrics-link.com?pid={pid}"
-    st.markdown(f"[Click here if not redirected](%s)" % qualtrics_return_url)
+    st.markdown(f"[Click here to continue survey](https://iu.ca1.qualtrics.com/jfe/form/SV_xxxxx?pid={pid}&cond={cond})")
     st.experimental_set_query_params()  # Clear URL params
     st.experimental_rerun()
