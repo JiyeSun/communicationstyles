@@ -4,6 +4,7 @@ import openai
 import pandas as pd
 import os
 from urllib.parse import urlparse, parse_qs
+import random
 
 # ====== Configuration ======
 model="gpt-4"
