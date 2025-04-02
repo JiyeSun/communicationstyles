@@ -6,7 +6,7 @@ from urllib.parse import urlparse, parse_qs
 
 # ====== Configuration ======
 model="gpt-4"
-openai.api_key = "TheKey"
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # ====== Prompt Definitions ======
 PROMPTS = {
