@@ -29,7 +29,7 @@ Use a supportive, informative tone. Encourage user agency and understanding."""
 def get_url_params():
     query_params = st.query_params
     pid = query_params.get("pid", ["unknown"])[0]
-    cond = query_params.get("cond", ["1"])[0]
+    cond = query_params.get("cond", [str(random.choice(["1", "2", "3", "4"]))])[0]
     return pid, cond
 
 # ====== Initialize Chat State ======
