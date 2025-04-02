@@ -79,4 +79,4 @@ for sender, msg in st.session_state.chat:
 if st.button("Finish and continue survey"):
     df = pd.DataFrame(st.session_state.log)
     df.to_csv(f"chatlog_{pid}.csv", index=False)
-    st.markdown(f"[Click here to continue survey](https://iu.co1.qualtrics.com/jfe/preview/previewId/5824dd0b-b9c1-40b7-89f0-813e8f844e63/SV_es9wQhWHcJ9lg1M?pid={pid}&cond={cond})")
+    st.markdown(f"[Click here to continue survey](https://iu.ca1.qualtrics.com/jfe/form/SV_es9wQhWHcJ9lg1M?pid={pid}&cond={cond})")
