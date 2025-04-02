@@ -47,7 +47,21 @@ if debug:
 user_input = st.text_input("Ask HealthMate a question about your health:")
 
 if st.button("Send") and user_input:
-    messages = [{"role": "system", "content": prompt}]
+    # Get context from knowledge base
+    context = get_knowledge_context(user_input)
+
+    system_prompt = f"""
+You are HealthMate.
+{prompt_style}
+
+The following reference information may be helpful. Use it as background to inform your response, but you do not need to strictly follow or quote it:
+
+{context}
+
+If you're unsure, it's okay to say you don't know or that more consultation is recommended.
+"""
+
+    messages = [{"role": "system", "content": system_prompt}]
     for sender, msg in st.session_state.chat:
         role = "user" if sender == "User" else "assistant"
         messages.append({"role": role, "content": msg})
