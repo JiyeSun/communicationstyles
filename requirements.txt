@@ -3,3 +3,6 @@ pandas
 streamlit
 gspread
 oauth2client
+llama-index
+PyMuPDF
+beautifulsoup4
