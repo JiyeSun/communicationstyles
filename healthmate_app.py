@@ -3,6 +3,7 @@ import streamlit as st
 import openai
 import pandas as pd
 import os
+from google_sheet_writer import write_to_google_sheet
 
 # ====== Configuration ======
 model = "gpt-4"
@@ -78,6 +79,7 @@ for sender, msg in st.session_state.chat:
 if st.button("Finish and continue survey"):
     df = pd.DataFrame(st.session_state.log)
     df.to_csv(f"chatlog_{pid}.csv", index=False)
+    write_to_google_sheet(st.session_state.log)
     redirect_url = f"https://iu.ca1.qualtrics.com/jfe/form/SV_es9wQhWHcJ9lg1M?pid={pid}&cond={cond}"
     html_redirect = (
         f'<meta http-equiv="refresh" content="1;url={redirect_url}">'
