@@ -75,13 +75,12 @@ if st.button("Send") and user_input:
 for sender, msg in st.session_state.chat:
     st.markdown(f"**{sender}:** {msg}")
 
-# Finish & redirect
 if st.button("Finish and continue survey"):
     df = pd.DataFrame(st.session_state.log)
     df.to_csv(f"chatlog_{pid}.csv", index=False)
     redirect_url = f"https://iu.ca1.qualtrics.com/jfe/form/SV_es9wQhWHcJ9lg1M?pid={pid}&cond={cond}"
     html_redirect = (
         f'<meta http-equiv="refresh" content="1;url={redirect_url}">'
-        f'<p>If you are not redirected, <a href="{redirect_url}">click here to continue survey</a>.</p>'
+        f'<p style="display:none;">Redirecting... <a href=\"{redirect_url}\">Click here</a>.</p>'
     )
     st.markdown(html_redirect, unsafe_allow_html=True)
