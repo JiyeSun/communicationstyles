@@ -27,7 +27,7 @@ Use a supportive, informative tone. Encourage user agency and understanding."""
 
 # ====== Helper to Read URL Parameters ======
 def get_url_params():
-    query_params = st.query_params()
+    query_params = st.query_params
     pid = query_params.get("pid", ["unknown"])[0]
     cond = query_params.get("cond", ["1"])[0]
     return pid, cond
