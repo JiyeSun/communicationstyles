@@ -17,7 +17,7 @@ def build_knowledge_index(pdf_folder="data", urls=None, save_path="my_knowledge_
     index.storage_context.persist(save_path)
     print(f"Index built and saved to: {save_path}")
 
-def get_knowledge_context(query, index_path="my_knowledge_index", top_k=3):
+def get_knowledge_context(query, index_path="data", top_k=3):
     storage_context = StorageContext.from_defaults(persist_dir=index_path)
     index = load_index_from_storage(storage_context)
     retriever = index.as_retriever(similarity_top_k=top_k)
