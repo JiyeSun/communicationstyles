@@ -2,6 +2,7 @@
 import streamlit as st
 import openai
 import pandas as pd
+import os
 from urllib.parse import urlparse, parse_qs
 
 # ====== Configuration ======
