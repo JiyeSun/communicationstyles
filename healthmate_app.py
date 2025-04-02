@@ -3,77 +3,105 @@ import streamlit as st
 import openai
 import pandas as pd
 import os
-from google_sheet_writer import write_to_google_sheet
+from urllib.parse import urlparse, parse_qs
 
-# ====== Configuration ======
-model = "gpt-4"
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# ====== API Key Configuration ======
+openai.api_key = st.secrets["OPENAI_API_KEY"]
 
-# ====== Prompt Definitions ======
-PROMPTS = {
-    "1": "You are HealthMate, an authoritative AI health advisor. Your communication style is directive. You give users clear, specific instructions...",
-    "2": "You are HealthMate, an expert AI health advisor. Your communication style is directive. You give specific advice with logical reasoning...",
-    "3": "You are HealthMate, a friendly AI health advisor. Your communication style is collaborative. You ask preferences and provide suggestions...",
-    "4": "You are HealthMate, a thoughtful AI health advisor. Your communication style is collaborative. You explain in detail using scientific logic..."
-}
-
-# ====== URL Param Reader ======
+# ====== Utility Functions ======
 def get_url_params():
     query_params = st.query_params
-    pid = query_params.get("pid", "unknown")
-    cond = query_params.get("cond", "1")
+    pid = query_params.get("pid", ["unknown"])[0]
+    cond = query_params.get("cond", ["1"])[0]
     return pid, cond
 
-# ====== Init State ======
-if "chat" not in st.session_state:
-    st.session_state.chat = []
-if "log" not in st.session_state:
-    st.session_state.log = []
+def get_prompt_by_condition(cond):
+    if cond == "1":  # Directing + Heuristic
+        style_prompt = """
+You are HealthMate, an authoritative and directive AI health assistant.
+Your tone is firm and instructional. Do not ask for opinions or offer multiple options.
+Give one clear recommendation based on user input.
+If the user describes any unhealthy habit, emphasize its negative consequence.
 
-# ====== UI ======
+Starter: Hello. I’m HealthMate. I will ask a few questions about your lifestyle and then give you a plan to follow.
+"""
+        few_shot = [
+            {"role": "user", "content": "I eat fast food every day."},
+            {"role": "assistant", "content": "That is harmful to your health. You must reduce it to no more than once a week. Start cooking at home."}
+        ]
+
+    elif cond == "2":  # Directing + Systematic
+        style_prompt = """
+You are HealthMate, a directive AI assistant that also provides evidence-based reasoning.
+Use firm language and cite credible sources like CDC or NIH.
+Avoid asking for preferences or giving options.
+
+Starter: Hello. I’m HealthMate. I’ll ask a few questions and then provide a research-backed plan you should follow.
+"""
+        few_shot = [
+            {"role": "user", "content": "I rarely exercise."},
+            {"role": "assistant", "content": "According to the CDC, lack of physical activity increases your risk of heart disease. You should start walking 30 minutes per day, five days a week."}
+        ]
+
+    elif cond == "3":  # Sharing + Heuristic
+        style_prompt = """
+You are HealthMate, a supportive AI health coach.
+Use friendly, encouraging language. Ask for the user’s preferences and explore possible solutions together.
+Avoid strict commands.
+
+Starter: Hi! I’m HealthMate. I’d love to hear more about your lifestyle so we can build a plan together.
+"""
+        few_shot = [
+            {"role": "user", "content": "I eat out every day."},
+            {"role": "assistant", "content": "Thanks for sharing that. Would you be open to trying home cooking a few times per week? It might help you feel more energetic."}
+        ]
+
+    else:  # Sharing + Systematic (Condition 4)
+        style_prompt = """
+You are HealthMate, a collaborative and evidence-informed AI assistant.
+Ask follow-up questions and build a plan with the user. When possible, explain the reasoning behind suggestions.
+
+Starter: Hi! I’m HealthMate. I’m here to help you reflect on your habits and co-create a plan supported by health research.
+"""
+        few_shot = [
+            {"role": "user", "content": "I skip breakfast almost every day."},
+            {"role": "assistant", "content": "Thanks for letting me know. Studies show skipping breakfast may impact blood sugar levels. Would you consider starting with something simple, like oatmeal or fruit?"}
+        ]
+
+    return style_prompt.strip(), few_shot
+
+# ====== Streamlit UI ======
+
 st.title("🩺 HealthMate – AI Health Assistant")
 pid, cond = get_url_params()
-prompt = PROMPTS.get(cond, PROMPTS["1"])
 
-# ====== Debug Info ======
-debug = True
-if debug:
-    st.markdown("### 🛠️ Debug Info")
-    st.markdown(f"- **Participant ID**: `{pid}`")
-    st.markdown(f"- **Condition**: `{cond}`")
-    st.markdown("---")
+if "chat" not in st.session_state:
+    st.session_state.chat = []
+    st.session_state.log = []
 
-# ====== Main Interaction ======
+st.markdown(f"**Participant ID:** `{pid}`")
+st.markdown(f"**Condition:** `{cond}`")
+
 user_input = st.text_input("Ask HealthMate a question about your health:")
 
 if st.button("Send") and user_input:
-    # Get context from knowledge base
-    context = get_knowledge_context(user_input)
+    style_prompt, few_shot = get_prompt_by_condition(cond)
 
-    system_prompt = f"""
-You are HealthMate.
-{prompt_style}
+    messages = [{"role": "system", "content": style_prompt}] + few_shot
 
-The following reference information may be helpful. Use it as background to inform your response, but you do not need to strictly follow or quote it:
-
-{context}
-
-If you're unsure, it's okay to say you don't know or that more consultation is recommended.
-"""
-
-    messages = [{"role": "system", "content": system_prompt}]
+    # 记录历史对话
     for sender, msg in st.session_state.chat:
         role = "user" if sender == "User" else "assistant"
         messages.append({"role": role, "content": msg})
+
     messages.append({"role": "user", "content": user_input})
 
     try:
-        client = openai.OpenAI(api_key=openai.api_key)
-        response = client.chat.completions.create(
-            model=model,
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
             messages=messages
         )
-        reply = response.choices[0].message.content
+        reply = response["choices"][0]["message"]["content"]
     except Exception as e:
         reply = f"HealthMate: Sorry, something went wrong. ERROR: {str(e)}"
 
@@ -86,17 +114,9 @@ If you're unsure, it's okay to say you don't know or that more consultation is r
         "bot_reply": reply
     })
 
-# Show history
-for sender, msg in st.session_state.chat:
-    st.markdown(f"**{sender}:** {msg}")
-
-if st.button("Finish and continue survey"):
-    df = pd.DataFrame(st.session_state.log)
-    df.to_csv(f"chatlog_{pid}.csv", index=False)
-    write_to_google_sheet(st.session_state.log)
-    redirect_url = f"https://iu.ca1.qualtrics.com/jfe/form/SV_es9wQhWHcJ9lg1M?pid={pid}&cond={cond}"
-    html_redirect = (
-        f'<meta http-equiv="refresh" content="1;url={redirect_url}">'
-        f'<p style="display:none;">Redirecting... <a href=\"{redirect_url}\">Click here</a>.</p>'
-    )
-    st.markdown(html_redirect, unsafe_allow_html=True)
+# Show chat history
+for sender, message in st.session_state.chat:
+    if sender == "User":
+        st.markdown(f"**You:** {message}")
+    else:
+        st.markdown(f"**HealthMate:** {message}")
