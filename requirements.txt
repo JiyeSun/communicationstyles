@@ -7,4 +7,3 @@ llama-index
 PyMuPDF
 beautifulsoup4
 google-api-python-client
-llama_index
