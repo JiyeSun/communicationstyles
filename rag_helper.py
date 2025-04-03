@@ -1,6 +1,7 @@
 
-from llama_index.readers.web_page import SimpleWebPageReader
 from llama_index import GPTVectorStoreIndex, SimpleDirectoryReader, StorageContext, load_index_from_storage
+from llama_index.readers.web import SimpleWebPageReader
+
 def build_knowledge_index(pdf_folder="data", urls=None, save_path="my_knowledge_index"):
     if urls is None:
         urls = []
