@@ -1,4 +1,3 @@
-
 from llama_index import VectorStoreIndex, SimpleDirectoryReader, StorageContext, load_index_from_storage
 from llama_index.readers.web import SimpleWebPageReader
 
@@ -13,7 +12,7 @@ def build_knowledge_index(pdf_folder="data", urls=None, save_path="my_knowledge_
         web_docs = web_loader.load_data(urls)
 
     docs = pdf_docs + web_docs
-    index = GPTSimpleVectorIndex.from_documents(docs)
+    index = VectorStoreIndex.from_documents(docs)
     index.storage_context.persist(save_path)
     print(f"Index built and saved to: {save_path}")
 
