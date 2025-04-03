@@ -1,7 +1,6 @@
 openai
 streamlit
 pandas
-os
 gspread
 oauth2client
 google-api-python-client==2.70.0
