@@ -1,3 +1,4 @@
+from llama_index.core.indices.vector_store.base import VectorStoreIndex
 from llama_index.legacy import VectorStoreIndex
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, ServiceContext
 from llama_index import load_index_from_storage
