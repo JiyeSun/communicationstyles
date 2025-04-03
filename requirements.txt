@@ -3,7 +3,7 @@ openai
 pandas
 gspread
 oauth2client
-llama-index
 PyMuPDF
 beautifulsoup4
 google-api-python-client
+llama-index==0.9.48
