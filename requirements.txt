@@ -1,6 +1,6 @@
+streamlit
 openai
 pandas
-streamlit
 gspread
 oauth2client
 llama-index
