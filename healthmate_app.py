@@ -2,8 +2,8 @@ import streamlit as st
 import openai
 import pandas as pd
 import os
-from google_sheet_writer import write_to_google_sheet
 from rag_helper import get_knowledge_context
+from google_sheet_writer import write_to_google_sheet
 # ====== Configuration ======
 model = "gpt-4"
 openai.api_key = os.getenv("OPENAI_API_KEY")
